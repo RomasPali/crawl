@@ -1,20 +1,62 @@
 package com.soft.crawl.search.service;
 
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Stack;
 
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.select.Elements;
+import org.springframework.beans.factory.InitializingBean;
 import org.springframework.stereotype.Service;
 
-import com.soft.crawl.search.service.dfs.Node;
+import com.soft.crawl.search.service.nodes.LinkNode;
+import com.soft.crawl.search.service.nodes.SeedNode;
+
 
 @Service
-class CrawlSearchServiceImpl implements CrawlSearchService {
+class CrawlSearchServiceImpl implements CrawlSearchService, InitializingBean {
 
 	@Override
-	public void search(String url, String terms) {
-		System.out.println(url + terms);
+	public void afterPropertiesSet() throws Exception {
+		search("https://en.wikipedia.org/wiki/Elon_Musk", "Tesla,Musk,Gigafactory,Elon Mask");
+	}
 
+	
+	@Override
+	public void search(String url, String terms) {
+		
+		try {
+			List<String> termList = Arrays.asList(terms.split(","));
+			
+			SeedNode seedNode = new SeedNode();
+			seedNode.setUrl(url);
+		
+			generateLinkNodes(url);
+			
+		} catch (IOException e) {
+			e.printStackTrace();
+		}  
+	}
+	
+	private List<LinkNode> generateLinkNodes(String url) throws IOException {
+		
+		List<LinkNode> result = new ArrayList<>();
+		
+		Document seedDoc = Jsoup.connect(url).get();
+		Elements links = seedDoc.select("a[href]");
+		
+		return result; 
+	}
+	
+	/*
+	@Override
+	public void search(String url, String terms) {
+
+		List<String> termList = Arrays.asList(terms.split(","));
+		
 		Node startNode = new Node(1, 0);
 		Stack<Node> stack = new Stack<Node>();
 		stack.push(startNode);
@@ -48,5 +90,7 @@ class CrawlSearchServiceImpl implements CrawlSearchService {
 
 		return generatedNodes;
 	}
-
+	*/
 }
+
+

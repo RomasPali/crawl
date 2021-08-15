@@ -1,6 +1,6 @@
 package com.soft.crawl.search.service;
 
 public interface CrawlSearchService {
-	public void search(String url, String terms);
+	public void search(String seed, String terms);
 
 }
