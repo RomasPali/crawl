@@ -14,7 +14,7 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
-import org.springframework.beans.factory.InitializingBean;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import com.soft.crawl.report.Report;
@@ -27,10 +27,15 @@ import com.soft.crawl.url.UrlValidator;
 
 @Service
 @Transactional
-class CrawlSearchServiceImpl implements CrawlSearchService, InitializingBean {
+class CrawlSearchServiceImpl implements CrawlSearchService {
 
-	private final int depth = 2;
-	private final int visitedNodesCount = 100;
+	@Value("${search.depth:8}")
+	private int depth;
+
+	@Value("${search.visitedNodes:10000}")
+	private int visitedNodesCount;
+	
+	
 	private final String HTML_ELEMENT_A_HREF = "a[href]";
 	private final String HTML_ATTRIBUTE_HREF = "href";
 
@@ -42,21 +47,6 @@ class CrawlSearchServiceImpl implements CrawlSearchService, InitializingBean {
 		this.seedRepository = seedRepository;
 		this.report = report;
 		this.urlValidator = urlValidator;
-	}
-
-	@Override
-	public void afterPropertiesSet() throws Exception {
-		// search("https://en.wikipedia.org/wiki/Elon_Musk",
-		// "Tesla,Musk,Gigafactory,Elon Mask");
-		//search("https://en.wikipedia.org/wiki/Elon_Musk", "Tesla");
-		
-		/*
-		SeedEntity seedEntity = new SeedEntity();
-		seedEntity.setUrl("www.testURL.lt");
-		seedEntity.setTermEntities(Arrays.asList(new TermEntity("Tesla", 2), new TermEntity("Musk", 4)));
-		seedEntity.setLinkEntities(Arrays.asList(new LinkEntity(Arrays.asList(new TermEntity("Tesla", 2), new TermEntity("Musk", 4)), "www.wiki.lt")));
-		seedRepository.save(seedEntity);
-		*/
 	}
 
 	@Override
