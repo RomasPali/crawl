@@ -16,6 +16,8 @@ import java.util.Deque;
 import java.util.List;
 import java.util.Stack;
 
+import javax.transaction.Transactional;
+
 import org.jsoup.Connection;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -26,12 +28,16 @@ import org.springframework.stereotype.Service;
 
 import com.fasterxml.jackson.databind.util.LinkedNode;
 import com.opencsv.CSVWriter;
+import com.soft.crawl.report.Report;
 import com.soft.crawl.search.entity.LinkEntity;
 import com.soft.crawl.search.entity.SeedEntity;
+import com.soft.crawl.search.entity.SeedRepository;
 import com.soft.crawl.search.entity.TermEntity;
 import com.soft.crawl.search.node.Node;
+import com.soft.crawl.url.UrlValidator;
 
 @Service
+@Transactional
 class CrawlSearchServiceImpl implements CrawlSearchService, InitializingBean {
 
 	private final int depth = 2;
@@ -39,21 +45,39 @@ class CrawlSearchServiceImpl implements CrawlSearchService, InitializingBean {
 	private final String HTML_ELEMENT_A_HREF = "a[href]";
 	private final String HTML_ATTRIBUTE_HREF = "href";
 
+	private final SeedRepository seedRepository;
+	private final Report report;
+	private final UrlValidator urlValidator;
+	
+	public CrawlSearchServiceImpl(SeedRepository seedRepository, Report report, UrlValidator urlValidator) {
+		this.seedRepository = seedRepository;
+		this.report = report;
+		this.urlValidator = urlValidator;
+	}
+
 	@Override
 	public void afterPropertiesSet() throws Exception {
 		// search("https://en.wikipedia.org/wiki/Elon_Musk",
 		// "Tesla,Musk,Gigafactory,Elon Mask");
 		//search("https://en.wikipedia.org/wiki/Elon_Musk", "Tesla");
+		
+		/*
+		SeedEntity seedEntity = new SeedEntity();
+		seedEntity.setUrl("www.testURL.lt");
+		seedEntity.setTermEntities(Arrays.asList(new TermEntity("Tesla", 2), new TermEntity("Musk", 4)));
+		seedEntity.setLinkEntities(Arrays.asList(new LinkEntity(Arrays.asList(new TermEntity("Tesla", 2), new TermEntity("Musk", 4)), "www.wiki.lt")));
+		seedRepository.save(seedEntity);
+		*/
 	}
 
 	@Override
-	public byte[] search(String seedURL, String terms) {
+	public boolean crawl(String seedURL, String terms) {
 
 		try {
 			Document seedDoc = getJsoupDocument(seedURL);
 
 			if (seedDoc == null) {
-				return null;
+				return false;
 			}
 
 			List<String> termList = Arrays.asList(terms.split(","));
@@ -86,34 +110,31 @@ class CrawlSearchServiceImpl implements CrawlSearchService, InitializingBean {
 
 			System.out.println("Finish");
 		} catch (IOException e) {
-			e.printStackTrace();
+			return false;
 		}
 		
-		return getBytes();
+		return true;
+	}
+	
+	@Override
+	public List<String> getSeeds() {
+		List<String> result = new ArrayList<>();
+		
+		for(SeedEntity seedEntity : seedRepository.findAll()) {
+			result.add(seedEntity.getUrl());
+		}
+		
+		return result;
 	}
 
-	public byte[] getBytes() {
-		try {
-			ByteArrayOutputStream stream = new ByteArrayOutputStream();
-			OutputStreamWriter streamWriter = new OutputStreamWriter(stream);
+	@Override
+	public byte[] getFullReportBytes(String seed) {
+		return report.getBytes();
+	}
 
-			CSVWriter writer = new CSVWriter(streamWriter);
-
-			List<String[]> data = new ArrayList<String[]>();
-			data.add(new String[] { "Name", "Class", "Marks" });
-			data.add(new String[] { "Aman", "10", "620" });
-			data.add(new String[] { "Suraj", "10", "630" });
-			writer.writeAll(data);
-			streamWriter.flush();
-			writer.close();
-			
-			return stream.toByteArray();
-			
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		
-		return null;
+	@Override
+	public byte[] getTopReportBytes(String seed, int top) {
+		return report.getBytes();		
 	}
 
 	private List<Node> generateNodes(Document doc, String url, int depth) throws IOException {
@@ -126,7 +147,7 @@ class CrawlSearchServiceImpl implements CrawlSearchService, InitializingBean {
 
 			for (Element link : links) {
 
-				String linkURL = getLinkTextURL(url, link.attr(HTML_ATTRIBUTE_HREF));
+				String linkURL = urlValidator.getLinkTextURL(url, link.attr(HTML_ATTRIBUTE_HREF));
 
 				if (linkURL != null) {
 					result.add(new Node(linkURL, depth + 1));
@@ -134,31 +155,6 @@ class CrawlSearchServiceImpl implements CrawlSearchService, InitializingBean {
 			}
 		}
 		return result;
-	}
-
-	private String getLinkTextURL(String url, String linkText) throws IOException {
-
-		if (isValidURL(linkText)) {
-			return linkText;
-		}
-
-		if (linkText.startsWith("#")) {
-			return null;
-		}
-
-		URL seedURL = new URL(url);
-		return String.format("%s://%s%s", seedURL.getProtocol(), seedURL.getAuthority(), linkText);
-	}
-
-	private boolean isValidURL(String url) {
-
-		try {
-			new URL(url).toURI();
-		} catch (MalformedURLException | URISyntaxException e) {
-			return false;
-		}
-
-		return true;
 	}
 
 	private LinkEntity createLinkEntity(Node node, Document doc, List<String> termList) throws IOException {
