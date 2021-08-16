@@ -1,5 +1,11 @@
 package com.soft.crawl.dto;
 
+/**
+* DTO class
+* 
+* @author Romas
+* 
+*/
 public class CrawlDTO {
 	private String seed;
 	private String terms;

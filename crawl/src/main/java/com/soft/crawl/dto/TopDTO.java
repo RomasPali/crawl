@@ -1,5 +1,11 @@
 package com.soft.crawl.dto;
 
+/**
+* DTO class
+* 
+* @author Romas
+* 
+*/
 public class TopDTO {
 
 	private String seed;

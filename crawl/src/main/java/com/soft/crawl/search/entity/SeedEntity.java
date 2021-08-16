@@ -15,6 +15,12 @@ import javax.persistence.JoinTable;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
+/**
+* Database entity, stores url and term entities and links
+* 
+* @author Romas
+* 
+*/
 @Entity
 @Table(name = "seed")
 public class SeedEntity {

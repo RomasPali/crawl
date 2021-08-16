@@ -7,6 +7,12 @@ import java.net.URL;
 
 import org.springframework.stereotype.Component;
 
+/**
+* Validator, contains helper methods for url
+* 
+* @author Romas
+* 
+*/
 @Component
 public class UrlValidator {
 

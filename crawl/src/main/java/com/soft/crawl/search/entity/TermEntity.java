@@ -7,6 +7,12 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
+/**
+* Database entity, stores term and number of hits
+* 
+* @author Romas
+* 
+*/
 @Entity
 @Table(name = "term")
 public class TermEntity {
