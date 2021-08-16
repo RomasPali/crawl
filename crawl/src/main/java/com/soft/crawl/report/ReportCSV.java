@@ -5,9 +5,7 @@ import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 
@@ -16,6 +14,12 @@ import com.soft.crawl.search.entity.LinkEntity;
 import com.soft.crawl.search.entity.SeedEntity;
 import com.soft.crawl.search.entity.TermEntity;
 
+/**
+* ReportCSV implementation of Report interface, for generating csv file bytes 
+* 
+* @author Romas
+* 
+*/
 @Service
 class ReportCSV implements Report {
 

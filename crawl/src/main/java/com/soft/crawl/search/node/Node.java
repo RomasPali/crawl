@@ -1,7 +1,12 @@
 package com.soft.crawl.search.node;
 
-import javassist.expr.Instanceof;
-
+/**
+* Node used for search
+* 
+* @author Romas
+* 
+*
+*/
 public class Node {
 	private String url;
 	private int depth;

@@ -15,8 +15,13 @@ import javax.persistence.JoinTable;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
-import javax.persistence.Transient;
 
+/**
+* Database entity, stores url and term entities
+* 
+* @author Romas
+* 
+*/
 @Entity
 @Table(name = "link")
 public class LinkEntity implements Comparable< LinkEntity > {
