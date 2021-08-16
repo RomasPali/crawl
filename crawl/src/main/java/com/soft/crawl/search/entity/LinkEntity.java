@@ -12,12 +12,14 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
+import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 
 @Entity
 @Table(name = "link")
-public class LinkEntity {
+public class LinkEntity implements Comparable< LinkEntity > {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
@@ -31,6 +33,10 @@ public class LinkEntity {
 	@Column(name = "url")
 	private String url;
 	
+    @ManyToOne
+    @JoinColumn(name="seed_id", nullable=false)
+    private SeedEntity seedEntity;
+    
 	public LinkEntity() {
 	}
 
@@ -62,9 +68,36 @@ public class LinkEntity {
 	public void setTermEntities(List<TermEntity> termEntities) {
 		this.termEntities = termEntities;
 	}
+	
+	public SeedEntity getSeedEntity() {
+		return seedEntity;
+	}
+
+	public void setSeedEntity(SeedEntity seedEntity) {
+		this.seedEntity = seedEntity;
+	}
+
+	public int getTotalHits() {
+		int total = 0;
+		for(TermEntity entity : termEntities) {
+			total += entity.getHit();
+		}
+		return total;
+	}
 
 	@Override
 	public String toString() {
-		return "LinkEntity [termEntities=" + termEntities + ", url=" + url + "]";
+		return "LinkEntity [id=" + id + ", url=" + url + "]";
+	}
+
+	@Override
+	public int compareTo(LinkEntity o) {
+		if(getTotalHits() == o.getTotalHits()) {
+			return 0;
+		} else if(getTotalHits() > o.getTotalHits()) {
+			return -1;
+		} else {
+			return 1;
+		}
 	}
 }

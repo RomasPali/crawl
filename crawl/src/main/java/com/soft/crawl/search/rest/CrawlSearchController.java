@@ -8,8 +8,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.soft.crawl.dto.CrawlDTO;
+import com.soft.crawl.dto.TopDTO;
 import com.soft.crawl.search.service.CrawlSearchService;
 
 @RestController
@@ -37,9 +40,9 @@ public class CrawlSearchController {
 	}
 	*/
 
-	@PostMapping("{seed}/{terms}/crawl")
-	public ResponseEntity<?> crawl(@PathVariable String seed, @PathVariable String terms) {
-		if (crawlSearchService.crawl(seed, terms)) {
+	@PostMapping("/crawl")
+	public ResponseEntity<?> crawl(@RequestBody CrawlDTO dto) {
+		if (crawlSearchService.crawl(dto.getSeed(), dto.getTerms())) {
 			return ResponseEntity.ok().build();
 		}
 		return ResponseEntity.internalServerError().build();
@@ -50,8 +53,8 @@ public class CrawlSearchController {
 		return crawlSearchService.getSeeds();
 	}
 
-	@GetMapping("{seed}/full-report")
-	public ResponseEntity<ByteArrayResource> getFullReport(@PathVariable String seed) {
+	@PostMapping("/generate-full-report")
+	public ResponseEntity<ByteArrayResource> generateFullReport(@RequestBody String seed) {
 		byte[] bytes = crawlSearchService.getFullReportBytes(seed);
 		
 		if (bytes == null) {
@@ -68,9 +71,9 @@ public class CrawlSearchController {
         return ResponseEntity.ok().headers(header).contentLength(bytes.length).body(new ByteArrayResource(bytes));
 	}
 
-	@GetMapping("{seed}/{top}/top-report")
-	public ResponseEntity<ByteArrayResource> getTopReport(@PathVariable String seed, @PathVariable int top) {
-		byte[] bytes = crawlSearchService.getTopReportBytes(seed, top);
+	@PostMapping("/generate-top-report")
+	public ResponseEntity<ByteArrayResource> getTopReport(@RequestBody TopDTO dto) {
+		byte[] bytes = crawlSearchService.getTopReportBytes(dto.getSeed(), dto.getTop());
 
 		if (bytes == null) {
 			return ResponseEntity.internalServerError().build();

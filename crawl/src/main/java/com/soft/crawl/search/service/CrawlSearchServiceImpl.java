@@ -1,20 +1,11 @@
 package com.soft.crawl.search.service;
 
-import java.io.BufferedWriter;
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
-import java.io.OutputStreamWriter;
-import java.net.MalformedURLException;
-import java.net.URISyntaxException;
-import java.net.URL;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Deque;
 import java.util.List;
-import java.util.Stack;
 
 import javax.transaction.Transactional;
 
@@ -26,8 +17,6 @@ import org.jsoup.select.Elements;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.stereotype.Service;
 
-import com.fasterxml.jackson.databind.util.LinkedNode;
-import com.opencsv.CSVWriter;
 import com.soft.crawl.report.Report;
 import com.soft.crawl.search.entity.LinkEntity;
 import com.soft.crawl.search.entity.SeedEntity;
@@ -108,7 +97,7 @@ class CrawlSearchServiceImpl implements CrawlSearchService, InitializingBean {
 				history.add(node);
 			}
 
-			System.out.println("Finish");
+			seedRepository.save(seedEntity);
 		} catch (IOException e) {
 			return false;
 		}
@@ -129,12 +118,14 @@ class CrawlSearchServiceImpl implements CrawlSearchService, InitializingBean {
 
 	@Override
 	public byte[] getFullReportBytes(String seed) {
-		return report.getBytes();
+		SeedEntity seedEntity = seedRepository.findByUrl(seed);
+		return seedEntity != null ? report.getReportBytes(seedEntity) : null;
 	}
 
 	@Override
 	public byte[] getTopReportBytes(String seed, int top) {
-		return report.getBytes();		
+		SeedEntity seedEntity = seedRepository.findByUrl(seed);
+		return seedEntity != null ? report.getReportTopBytes(seedEntity, top) : null;	
 	}
 
 	private List<Node> generateNodes(Document doc, String url, int depth) throws IOException {
