@@ -35,7 +35,9 @@ class CrawlSearchServiceImpl implements CrawlSearchService {
 	@Value("${search.visitedNodes:10000}")
 	private int visitedNodesCount;
 	
-	
+
+	private final int HTML_RESPONSE_STATUS_OK = 200;
+
 	private final String HTML_ELEMENT_A_HREF = "a[href]";
 	private final String HTML_ATTRIBUTE_HREF = "href";
 
@@ -168,11 +170,10 @@ class CrawlSearchServiceImpl implements CrawlSearchService {
 			Connection connection = Jsoup.connect(url);
 			Document doc = connection.get();
 
-			if (connection.response().statusCode() == 200) {
+			if (connection.response().statusCode() == HTML_RESPONSE_STATUS_OK) {
 				return doc;
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
 		}
 
 		return null;
