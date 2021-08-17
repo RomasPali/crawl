@@ -73,7 +73,7 @@ public class CrawlSearchController {
         header.add("Pragma", "no-cache");
         header.add("Expires", "0");
         header.add("content-type", "text/csv");
-        header.add("Content-Disposition", "attachment; filename=testCsv.csv");
+        header.add("Content-Disposition", "attachment; filename=topReport.csv");
 
         return ResponseEntity.ok().headers(header).contentLength(bytes.length).body(new ByteArrayResource(bytes));
 	}
