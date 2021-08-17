@@ -83,8 +83,8 @@ class CrawlSearchServiceImpl implements CrawlSearchService {
 
 					if (doc != null) {
 						seedEntity.addLinkEntity(createLinkEntity(node, doc, termList));
+						processing.addAll(generateNodes(seedDoc, node.getUrl(), node.getDepth() + 1));
 					}
-					processing.addAll(generateNodes(seedDoc, seedURL, 0));
 				}
 				history.add(node);
 			}
